@@ -144,7 +144,7 @@ with requests.session() as session:
 										, situs_address_line3										
 										, html
 									)
-									VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s);''', 
+									VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s);''', 
 									(
 										  prop_id
 										, owner_names
@@ -173,7 +173,7 @@ with requests.session() as session:
 						if counter == 4:
 							sales_record.append(datetime.strptime(td.text.strip(), "%m/%d/%y"))
 						elif counter == 5:
-							sales_record.append(int(td.text.lstrip('$').strip().replace(',', '')))		
+							sales_record.append(int(td.text.replace('$', '').replace(',', '').strip()))		
 						else:
 							sales_record.append(td.text.strip())
 

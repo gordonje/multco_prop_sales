@@ -1,5 +1,6 @@
 CREATE TABLE IF NOT EXISTS properties (
           id varchar(8) PRIMARY KEY
+        , scrape_round smallint
         , owner_names varchar(255)
         , owner_address_line1 varchar(255)
         , owner_address_line2 varchar(255)

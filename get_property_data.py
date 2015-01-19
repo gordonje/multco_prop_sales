@@ -65,7 +65,7 @@ print 'Started at ' + str(start_time)
 # read in the property_ids, excluding duplicates
 property_ids = []
 
-with open('PIDs.txt', 'rU') as f:
+with open('input/PIDs.txt', 'rU') as f:
 	for i in f:
 		if i.strip() not in property_ids:
 			property_ids.append(i.strip())
@@ -93,7 +93,7 @@ conn_string = "dbname=%(db)s user=%(user)s password=%(password)s" % {"db": db, "
 # create tables in database, unless they are already there
 with psycopg2.connect(conn_string) as conn:
 	with conn.cursor() as cur:
-		cur.execute(open('create_tables.sql', "r").read())
+		cur.execute(open('sql/create_tables.sql', "r").read())
 
 
 # get all the property_ids currently saved in the database

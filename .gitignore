@@ -55,5 +55,6 @@ target/
 
 # added by JG
 .DS_Store
-csv/*
 test.py
+misc/*
+sql_old/

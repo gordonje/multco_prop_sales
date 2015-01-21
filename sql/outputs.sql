@@ -18,6 +18,19 @@ WHERE id NOT IN (SELECT cash_sales_id FROM cash_sales_matches)
 AND propertyid IS NOT NULL
 ) to '/Users/gordo/multco_prop_sales/output/cash_sales_unmatched.csv' DELIMITER ',' CSV HEADER;
 
+-- output match duplicates
+COPY (
+SELECT *
+FROM cash_sales_matches
+WHERE cash_sales_id IN (
+        SELECT cash_sales_id
+        FROM cash_sales_matches
+        GROUP BY cash_sales_id
+        HAVING COUNT(*) > 1
+)
+ORDER BY property_id, date_sale DESC
+) TO '/Users/gordo/multco_prop_sales/output/match_duplicates.csv' DELIMITER ',' CSV HEADER;
+
 -- output flat file all sales
 COPY (
 SELECT 	  
@@ -160,3 +173,4 @@ COPY (
 SELECT *
 FROM cash_sellers
 ) TO '/Users/gordo/multco_prop_sales/output/cash_sellers.csv' DELIMITER ',' CSV HEADER;
+

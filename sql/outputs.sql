@@ -210,5 +210,5 @@ JOIN (
 ) AS sellers
 ON buyers.buyer = sellers.seller
 ORDER BY total_income - total_spent DESC
-) TO '/Users/gordo/multco_prop_sales/output/cash_players.csv' DELIMITER ',' CSV HEADER;
+) TO '/Users/gordo/multco_prop_sales/output/all_players.csv' DELIMITER ',' CSV HEADER;
 

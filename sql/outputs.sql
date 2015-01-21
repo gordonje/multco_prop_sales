@@ -180,12 +180,12 @@ SELECT
           a.buyer as player
         , num_cash_buys
         , num_cash_sales
-        , a.cash_total as total_buy_amount
-        , b.cash_total as total_sales_amount
-        , b.cash_total - a.cash_total as cash_net
+        , total_cash_spent
+        , total_cash_income
+        , total_cash_income - total_cash_spent as cash_net
 FROM cash_buyers a
 JOIN cash_sellers b
 ON a.buyer = b.seller
-ORDER BY b.cash_total - a.cash_total DESC
+ORDER BY total_cash_income - total_cash_spent DESC
 ) TO '/Users/gordo/multco_prop_sales/output/cash_players.csv' DELIMITER ',' CSV HEADER;
 

@@ -12,7 +12,7 @@ ORDER BY COUNT(*) DESC;
 CREATE TABLE cash_sellers AS
 SELECT 
           seller
-        , COUNT(*) AS num_cash_sells
+        , COUNT(*) AS num_cash_sales
         , SUM(consideration_amount) AS cash_total
 FROM cash_sales_matches
 GROUP BY seller

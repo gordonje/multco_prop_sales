@@ -212,3 +212,9 @@ ON buyers.buyer = sellers.seller
 ORDER BY total_income - total_spent DESC
 ) TO '/Users/gordo/multco_prop_sales/output/all_players.csv' DELIMITER ',' CSV HEADER;
 
+-- output cash_buys sold for
+COPY (
+SELECT *
+FROM cash_buys_sales
+ORDER BY net DESC
+) TO '/Users/gordo/multco_prop_sales/output/cash_buys_sales.csv' DELIMITER ',' CSV HEADER;

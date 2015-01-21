@@ -189,3 +189,26 @@ ON a.buyer = b.seller
 ORDER BY total_cash_income - total_cash_spent DESC
 ) TO '/Users/gordo/multco_prop_sales/output/cash_players.csv' DELIMITER ',' CSV HEADER;
 
+-- output all players
+COPY (
+SELECT 
+          buyer
+        , num_buys
+        , num_sells
+        , total_spent
+        , total_income
+        , total_income - total_spent AS total_net
+FROM (
+        SELECT buyer, COUNT(*) AS num_buys, SUM(consideration_amount) AS total_spent
+        FROM property_sales
+        GROUP BY buyer
+) AS buyers
+JOIN (
+        SELECT seller, COUNT(*) AS num_sells, SUM(consideration_amount) AS total_income
+        FROM property_sales
+        GROUP BY seller
+) AS sellers
+ON buyers.buyer = sellers.seller
+ORDER BY total_income - total_spent DESC
+) TO '/Users/gordo/multco_prop_sales/output/cash_players.csv' DELIMITER ',' CSV HEADER;
+

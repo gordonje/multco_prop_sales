@@ -1,7 +1,7 @@
 multo_prop_taxes
 ================
 
-For scraping Multnomah County, Oregon, property tax information from [http://multcoproptax.org/](http://multcoproptax.org/).
+This is a repo for a project for which I was contracted to assist another journalist. It started of as scraping Multnomah County, Oregon, property sales information from [http://multcoproptax.org/](http://multcoproptax.org/), then sort of snowballed from there.
 
 
 Dependencies

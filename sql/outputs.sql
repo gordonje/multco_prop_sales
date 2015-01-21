@@ -2,13 +2,13 @@
 COPY (
 SELECT *
 FROM properties_appd
-) to '/Users/gordo/multco_prop_taxes/output/properties_appd.csv' DELIMITER ',' CSV HEADER;
+) to '/Users/gordo/multco_prop_sales/output/properties_appd.csv' DELIMITER ',' CSV HEADER;
 
 -- output cash matches table
 COPY (
 SELECT *
 FROM cash_sales_matches
-) to '/Users/gordo/multco_prop_taxes/output/cash_sales_matches.csv' DELIMITER ',' CSV HEADER;
+) to '/Users/gordo/multco_prop_sales/output/cash_sales_matches.csv' DELIMITER ',' CSV HEADER;
 
 -- output unmatched cash sales
 COPY (
@@ -16,7 +16,7 @@ SELECT *
 FROM cash_sales_orig
 WHERE id NOT IN (SELECT cash_sales_id FROM cash_sales_matches)
 AND propertyid IS NOT NULL
-) to '/Users/gordo/multco_prop_taxes/output/cash_sales_unmatched.csv' DELIMITER ',' CSV HEADER;
+) to '/Users/gordo/multco_prop_sales/output/cash_sales_unmatched.csv' DELIMITER ',' CSV HEADER;
 
 -- output flat file all sales
 COPY (
@@ -80,7 +80,7 @@ SELECT
 FROM properties_appd a
 JOIN property_sales b
 ON a.property_id = b.property_id
-) to '/Users/gordo/multco_prop_taxes/output/flat_file_all_sales.csv' DELIMITER ',' CSV HEADER;
+) to '/Users/gordo/multco_prop_sales/output/flat_file_all_sales.csv' DELIMITER ',' CSV HEADER;
 
 -- output flat file cash only
 COPY (
@@ -147,16 +147,16 @@ SELECT
 FROM properties_appd a
 JOIN cash_sales_matches b
 ON a.property_id = b.property_id
-) to '/Users/gordo/multco_prop_taxes/output/flat_file_cash_only.csv' DELIMITER ',' CSV HEADER;
+) to '/Users/gordo/multco_prop_sales/output/flat_file_cash_only.csv' DELIMITER ',' CSV HEADER;
 
 -- output cash buyers
-COPY TO (
+COPY (
 SELECT *
 FROM cash_buyers
-)  to '/Users/gordo/multco_prop_taxes/output/cash_buyers.csv' DELIMITER ',' CSV HEADER;
+) TO '/Users/gordo/multco_prop_sales/output/cash_buyers.csv' DELIMITER ',' CSV HEADER;
 
 -- output cash sellers
-COPY TO (
+COPY (
 SELECT *
 FROM cash_sellers
-)  to '/Users/gordo/multco_prop_taxes/output/cash_sellers.csv' DELIMITER ',' CSV HEADER;
+) TO '/Users/gordo/multco_prop_sales/output/cash_sellers.csv' DELIMITER ',' CSV HEADER;

@@ -174,19 +174,16 @@ SELECT *
 FROM cash_sellers
 ) TO '/Users/gordo/multco_prop_sales/output/cash_sellers.csv' DELIMITER ',' CSV HEADER;
 
+-- output cash players
+COPY (
+SELECT *
+FROM cash_sellers
+) TO '/Users/gordo/multco_prop_sales/output/cash_sellers.csv' DELIMITER ',' CSV HEADER;
+
 -- output cash_players
 COPY (
-SELECT 
-          a.buyer as player
-        , num_cash_buys
-        , num_cash_sales
-        , total_cash_spent
-        , total_cash_income
-        , total_cash_income - total_cash_spent as cash_net
-FROM cash_buyers a
-JOIN cash_sellers b
-ON a.buyer = b.seller
-ORDER BY total_cash_income - total_cash_spent DESC
+SELECT *
+FROM cash_players
 ) TO '/Users/gordo/multco_prop_sales/output/cash_players.csv' DELIMITER ',' CSV HEADER;
 
 -- output all players

@@ -58,4 +58,5 @@ SELECT
 FROM cash_sales_matches a
 JOIN property_sales b
 ON a.property_id = b.property_id
-AND a.buyer = b.seller;
+AND a.buyer = b.seller
+AND b.deed <> 'ERROR';

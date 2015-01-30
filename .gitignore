@@ -58,3 +58,4 @@ target/
 test.py
 misc/*
 sql_old/
+test.py

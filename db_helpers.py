@@ -29,7 +29,10 @@ def query(conn_string, operation, parameters = None):
 
 	with psycopg2.connect(conn_string) as conn:
 		with conn.cursor() as cur:
-			cur.execute(operation, parameters)
+			try:
+				cur.execute(operation, parameters)
+			except psycopg2.IntegrityError:
+				print '   Duplicate property_id.'
 
 
 def query_w_results(conn_string, operation, parameters = None):

@@ -1,5 +1,5 @@
 -- create and appended properties table
-CREATE TABLE properties_appd AS
+CREATE TABLE IF NOT EXISTS properties_appd AS
 SELECT 
           properties.id as property_id
         , street_no

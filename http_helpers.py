@@ -20,7 +20,7 @@ def login(request_session):
 	return
 
 
-def request_property(request_session, property_id):
+def get_property(request_session, property_id):
 	# waits 3 seconds, then makes a get request and returns response. 
 	# if there's a connection error, reset the session and re-log in before trying again.
 	sleep(3)
@@ -40,19 +40,26 @@ def request_property(request_session, property_id):
 	return response
 
 
-# def request_search(request_session, address_dict):
-# 	# waits 3 seconds, then makes a get request and returns response. 
-# 	# if there's a connection error, reset the session and re-log in before trying again.
-# 	sleep(3)
+def get_search_results(request_session, address_dict, page_num):
+	# waits 3 seconds, then makes a get request and returns response. 
+	# if there's a connection error, reset the session and re-log in before trying again.
+	sleep(3)
 
-# 	try:
-# 		response = request_session.post('http://multcoproptax.org/search.asp', address_dict)
-# 	except requests.exceptions.ConnectionError:
-# 		# figure out how to print the specific kind of error
-# 		print requests.exceptions.ConnectionError
-# 		print '   Connection dropped, resetting session...'
-# 		request_session = requests.Session()
-# 		login(request_session)
-# 		return request_property(request_session, payload)
+	payload = {
+		  'selecttype': '1'
+		, 'search': "{street_no} {street_dir} {street}".format(**address_dict) 
+		, 'Submit': 'Search Property'
+		, 'f': page_num
+	}
+
+	try:
+		response = request_session.post('http://multcoproptax.org/searchResults.asp', params = payload)
+	except requests.exceptions.ConnectionError:
+		# figure out how to print the specific kind of error
+		print requests.exceptions.ConnectionError
+		print '   Connection dropped, resetting session...'
+		request_session = requests.Session()
+		login(request_session)
+		return get_search_results(request_session, address_dict)
 	
-# 	return response
+	return response

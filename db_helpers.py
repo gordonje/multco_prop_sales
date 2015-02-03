@@ -1,6 +1,8 @@
 from sys import argv
 from getpass import getpass
 import psycopg2
+import psycopg2.extras
+
 
 def get_conn_string():
 	# returns a valid connection string to use when getting to db via psycopg2
@@ -33,6 +35,6 @@ def query(conn_string, operation, parameters = None):
 def query_w_results(conn_string, operation, parameters = None):
 
 	with psycopg2.connect(conn_string) as conn:
-		with conn.cursor() as cur:
+		with conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor) as cur:
 			cur.execute(operation, parameters)
 			return cur.fetchall()

@@ -1,4 +1,4 @@
-CREATE TABLE cash_sales_orig (
+CREATE TABLE IF NOT EXISTS cash_sales_orig (
           ZIP INT
         , date_coe DATE
         , STREET_NO INT

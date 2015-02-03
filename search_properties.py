@@ -24,7 +24,8 @@ addresses = query_w_results(conn_string, '''SELECT DISTINCT
 												, street
 												, street_typ
 												, unit_no 
-											FROM cash_sales_orig;''')
+											FROM cash_sales_orig
+											WHERE property_id;''')
 
 # for each address in the cash sales where we don't have a propertyid
 

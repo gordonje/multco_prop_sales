@@ -23,7 +23,7 @@ def login(request_session):
 def get_property(request_session, property_id):
 	# waits 3 seconds, then makes a get request and returns response. 
 	# if there's a connection error, reset the session and re-log in before trying again.
-	sleep(2)
+	sleep(3)
 
 	payload = {'PropertyID': property_id}
 
@@ -43,7 +43,7 @@ def get_property(request_session, property_id):
 def get_search_results(request_session, address_dict, page_num):
 	# waits 3 seconds, then makes a get request and returns response. 
 	# if there's a connection error, reset the session and re-log in before trying again.
-	sleep(2)
+	sleep(3)
 
 	payload = {
 		  'selecttype': '1'

@@ -27,15 +27,19 @@ addresses = query_w_results(conn_string, '''SELECT DISTINCT
 											FROM cash_sales_orig
 											WHERE property_id IS NULL;''')
 
+# Determines which record with which to start searching
+start_position = query_w_results(conn_string, '''SELECT COUNT(*) as the_count
+												FROM searches;''')[0]['the_count']
+
+search_id = start_position + 1
+
 # for each address in the cash sales where we don't have a propertyid
 
 with requests.session() as session:
 
 	login(session)
 
-	search_id = 1
-
-	for i in addresses:
+	for i in addresses[start_position:]:
 
 		print "Search criteria: {street_no} {street_dir} {street} {street_typ} {unit_no} {zip}".format(**i)
 

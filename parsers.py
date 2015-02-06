@@ -71,7 +71,10 @@ def parse_address(address_tag):
 def parse_property(response_soup, property_id, search_id):
 	# Takes soup and parses out all of the property info.
 
-	owner_names = response_soup.find_all('tr', class_ = 'regtxt')[0].find('td').text.strip()
+	try:
+		owner_names = response_soup.find_all('tr', class_ = 'regtxt')[0].find('td').text.strip()
+	except Indexerror:
+		print response_soup
 
 	owner_address = parse_address(response_soup.find_all('tr', class_ = 'regtxt')[1].find_all('td')[0])
 

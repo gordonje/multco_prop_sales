@@ -41,6 +41,10 @@ with requests.session() as session:
 
 	for i in addresses[start_position:]:
 
+		if (datetime.now().hour - start_time.hour) > 11:
+			print '   Time to login...'
+			login(session)
+
 		print "Search criteria: {street_no} {street_dir} {street} {street_typ} {unit_no} {zip}".format(**i)
 
 		data = {
@@ -169,4 +173,6 @@ with requests.session() as session:
 		search_id += 1
 
 		print '============'
+
+print 'fin.'
 

@@ -23,7 +23,7 @@ addresses = query_w_results(conn_string, '''SELECT DISTINCT
 												, street_dir
 												, street
 												, street_typ
-												, unit_no 
+												, replace(unit_no, '#', '') as unit_no 
 											FROM cash_sales_orig
 											WHERE property_id IS NULL;''')
 

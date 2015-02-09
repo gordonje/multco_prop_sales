@@ -19,7 +19,7 @@ INSERT INTO cash_sales_matches (
 )
 SELECT 
 	  a.id as cash_sale_id
-	, b.id as prop_sale_id
+	, b.sales_id as prop_sale_id
 	, b.property_id
 	, a.date_coe
 	, b.date_sale
@@ -37,9 +37,9 @@ SELECT
 	, a.zip
 FROM cash_sales_orig a
 JOIN property_sales b
-ON a.propertyid = b.property_id
+ON a.property_id = b.property_id
 AND a.date_coe = b.date_sale + %s
 WHERE consideration_amount > 0
-AND prop_type = 'RESID'
+AND prop_type = 'Resid'
 AND a.id not in (SELECT cash_sales_id FROM cash_sales_matches)
-AND b.id not in (SELECT prop_sales_id FROM cash_sales_matches);
+AND b.sales_id not in (SELECT prop_sales_id FROM cash_sales_matches);

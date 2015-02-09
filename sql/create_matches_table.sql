@@ -1,7 +1,7 @@
 CREATE TABLE IF NOT EXISTS cash_sales_matches (
           cash_sales_id BIGINT REFERENCES cash_sales_orig(id)
-        , prop_sales_id BIGINT REFERENCES property_sales(id)
-        , property_id VARCHAR(8) REFERENCES properties(id)
+        , prop_sales_id BIGINT REFERENCES property_sales(sales_id)
+        , property_id VARCHAR(8) REFERENCES properties(property_id)
         , date_coe DATE
         , date_sale DATE
         , date_diff SMALLINT

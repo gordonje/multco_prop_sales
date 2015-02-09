@@ -1,3 +1,5 @@
+from sys import argv
+from getpass import getpass
 import psycopg2
 
 # Database connection setup

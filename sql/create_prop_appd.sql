@@ -1,7 +1,7 @@
 -- create and appended properties table
-CREATE TABLE IF NOT EXISTS properties_appd AS
+CREATE TABLE properties_appd AS
 SELECT 
-          properties.id as property_id
+          properties.property_id
         , street_no
         , street_dir
         , street
@@ -52,5 +52,5 @@ SELECT
         , tlid
 FROM properties
 LEFT JOIN cash_sales_appd
-ON properties.id = propertyid;
+ON properties.property_id = cash_sales_appd.propertyid;
 

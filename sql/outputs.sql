@@ -15,7 +15,7 @@ COPY (
 SELECT *
 FROM cash_sales_orig
 WHERE id NOT IN (SELECT cash_sales_id FROM cash_sales_matches)
-AND propertyid IS NOT NULL
+AND property_id IS NOT NULL
 ) to '/Users/gordo/multco_prop_sales/output/cash_sales_unmatched.csv' DELIMITER ',' CSV HEADER;
 
 -- output match duplicates
@@ -34,7 +34,7 @@ ORDER BY property_id, date_sale DESC
 -- output flat file all sales
 COPY (
 SELECT 	  
-	  b.id as prop_sales_id
+	  b.sales_id as prop_sales_id
 	, a.property_id
 	, date_sale
 	, consideration_amount
@@ -212,17 +212,17 @@ ORDER BY total_income - total_spent DESC
 -- output cash_buys sold for
 COPY (
 SELECT *
-FROM cash_buys_sales
+FROM cash_buys_next_sales
 ORDER BY net DESC
-) TO '/Users/gordo/multco_prop_sales/output/cash_buys_sales.csv' DELIMITER ',' CSV HEADER;
+) TO '/Users/gordo/multco_prop_sales/output/cash_buys_next_sales.csv' DELIMITER ',' CSV HEADER;
 
--- output cash_buys_sales_sum
+-- output cash_buys_next_sales_sum
 COPY (
 SELECT 
           cash_buyer
         , COUNT(*) num_deals
         , SUM(net) as total_net
-FROM cash_buys_sales
+FROM cash_buys_next_sales
 GROUP BY cash_buyer
 ORDER BY SUM(net) DESC
-) TO '/Users/gordo/multco_prop_sales/output/cash_buys_sales_sum.csv' DELIMITER ',' CSV HEADER;
+) TO '/Users/gordo/multco_prop_sales/output/cash_buys_next_sales_sum.csv' DELIMITER ',' CSV HEADER;

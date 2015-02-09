@@ -47,7 +47,7 @@ GROUP BY player;
 
 
 -- create bought for / sold for table
-CREATE TABLE cash_buys_sales AS
+CREATE TABLE cash_buys_next_sales AS
 SELECT 
           a.property_id
         , a.buyer as cash_buyer

@@ -2,7 +2,7 @@
 COPY (
 SELECT *
 FROM searches
-) to '/Users/gordo/multco_prop_sales/output/properties_appd.csv' DELIMITER ',' CSV HEADER;
+) to '/Users/gordo/multco_prop_sales/output/searches.csv' DELIMITER ',' CSV HEADER;
 
 -- output properties appended table
 COPY (

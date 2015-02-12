@@ -42,4 +42,14 @@ query(conn_string, open("sql/set_orig_propid.sql", "r").read())
 
 query(conn_string, 'CREATE INDEX ON cash_sales_orig(property_id);')
 
+
+print 'Creating properties table...'
+
+query(conn_string, open("sql/create_properties.sql", "r").read())
+
+
+print 'Creating property_sales table...'
+
+query(conn_string, open("sql/create_property_sales.sql", "r").read())
+
 print 'fin.'

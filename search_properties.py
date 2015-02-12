@@ -1,6 +1,6 @@
 from datetime import datetime
 from http_helpers import login, get_property, get_search_results
-from db_helpers import get_conn_string, query, query_w_results
+from db_helpers import get_conn_string, query, query_w_results, insert_data
 from parsers import make_soup, has_next_button, parse_results_page, match_site_address
 from parsers import parse_address, parse_property
 import requests
@@ -12,9 +12,6 @@ print 'Started at ' + str(start_time)
 conn_string = get_conn_string()
 
 query(conn_string, open("sql/create_searches.sql", "r").read())
-query(conn_string, open("sql/create_properties.sql", "r").read())
-query(conn_string, open("sql/create_property_sales.sql", "r").read())
-
 
 # get all a address from cash sales that don't currently have a property_id
 addresses = query_w_results(conn_string, '''SELECT DISTINCT 
@@ -56,8 +53,11 @@ with requests.session() as session:
 			, 'unit_no': i['unit_no']
 			, 'zip': i['zip']
 			, 'results_num': 0
-			, 'possible_matches_num': 0
-			, 'possible_matches': []
+			, 'address_matches_num': 0
+			, 'zip_matches_num': 0
+			, 'address_matches': []
+			, 'zip_matches': []
+			, 'property_id': None
 		}
 
 		more_results = True
@@ -82,8 +82,10 @@ with requests.session() as session:
 					possible_match = match_site_address(prop, i)
 
 					if possible_match != None:
-
-						data['possible_matches'].append(possible_match)
+						if possible_match['type'] == 'address_match':
+							data['address_matches'].append(possible_match['property_id'])
+						if possible_match['type'] == 'zip_match':
+							data['zip_matches'].append(possible_match['property_id'])
 
 				page_num += 1
 
@@ -91,7 +93,16 @@ with requests.session() as session:
 
 				print 'No results.'
 
-		data['possible_matches_num'] = len(data['possible_matches'])
+		data['address_matches_num'] = len(data['address_matches'])
+		data['zip_matches_num'] = len(data['zip_matches'])
+
+		if data['address_matches_num'] == 1:
+			# if there's only one possible match, keep that property_id on the searches record for easier joining
+			data['property_id'] = data['address_matches'][0]
+
+		elif data['results_num'] == 1 and data['zip_matches'] == 1:
+			# if there's only one result and one zip match, store this property_id
+			data['property_id'] = data['zip_matches'][0]
 
 		query(conn_string, '''INSERT INTO searches (
 									  search_id
@@ -102,7 +113,9 @@ with requests.session() as session:
 									, unit_no
 									, zip
 									, results_num
-									, possible_matches_num
+									, address_matches_num
+									, zip_matches_num
+									, property_id
 								) VALUES (
 									  %(search_id)s
 									, %(street_no)s
@@ -112,72 +125,28 @@ with requests.session() as session:
 									, %(unit_no)s
 									, %(zip)s
 									, %(results_num)s
-									, %(possible_matches_num)s
+									, %(address_matches_num)s
+									, %(zip_matches_num)s
+									, %(property_id)s
 								);''',
 			data)
 
-		for property_id in data['possible_matches']:
+
+		for property_id in data['address_matches']:
 
 			soup = make_soup(get_property(session, property_id))
 
 			prop = parse_property(soup, property_id, data['search_id'])
 
-			is_dupe = False;
+			insert_data(conn_string, prop)
 
-			try:
-				query(conn_string, '''INSERT INTO properties (
-										  property_id
-										, search_id
-										, owner_names
-										, owner_address_line1
-										, owner_address_line2
-										, owner_address_line3
-										, situs_address_line1
-										, situs_address_line2
-										, situs_address_line3
-										, html
-									) VALUES (
-										  %(property_id)s
-										, %(search_id)s
-										, %(owner_names)s
-										, %(owner_address_line1)s
-										, %(owner_address_line2)s
-										, %(owner_address_line3)s
-										, %(situs_address_line1)s
-										, %(situs_address_line2)s
-										, %(situs_address_line3)s
-										, %(html)s
-									);''', 
-				prop)
-			except psycopg2.IntegrityError:
-				print '   Duplicate property_id.'
-				is_dupe	= True
+		if data['results_num'] == 1 and data['address_matches'] == 0 and data['zip_matches'] == 1:
 
-			if is_dupe:
-				pass
-			else:
-				for sale in prop['sales_records']:
+			soup = make_soup(get_property(session, data['property_id']))
 
-					query(conn_string, '''INSERT INTO property_sales (
-											  property_id
-											, search_id
-											, deed
-											, seller
-											, buyer
-											, instrument
-											, date_sale
-											, consideration_amount
-										) VALUES (
-											  %s
-											, %s
-											, %s
-											, %s
-											, %s
-											, %s
-											, %s
-											, %s
-									);''', 
-					(property_id, search_id) + sale)
+			prop = parse_property(soup, property_id, data['search_id'])
+
+			insert_data(conn_string, prop)
 
 		search_id += 1
 

@@ -49,7 +49,11 @@ def match_site_address(prop_tag, address_dict):
 
 	if int(zipcode) == address_dict['zip']:
 		if re.match('\d{{0,}}{street_no} {street_dir} {street} {street_typ}[^1-9]{{0,}}{unit_no}'.format(**address_dict).strip(), result_address, flags=re.IGNORECASE):
-			return prop_tag.text.strip()
+			return {'type': 'address_match', 'property_id': prop_tag.text.strip()}
+		else:
+			return {'type': 'zip_match', 'property_id': prop_tag.text.strip()}
+	else:
+		return None
 
 
 def parse_address(address_tag):
@@ -68,53 +72,55 @@ def parse_address(address_tag):
 
 
 
-def parse_property(response_soup, property_id, search_id):
+def parse_property(response_soup, property_id, search_id = None):
 	# Takes soup and parses out all of the property info.
 
 	try:
 		owner_names = response_soup.find_all('tr', class_ = 'regtxt')[0].find('td').text.strip()
+
+		owner_address = parse_address(response_soup.find_all('tr', class_ = 'regtxt')[1].find_all('td')[0])
+
+		situs_address = parse_address(response_soup.find_all('tr', class_ = 'regtxt')[1].find_all('td')[1])
+
+		prop = {
+			  'property_id': property_id
+			, 'search_id': search_id
+			, 'owner_names': owner_names
+			, 'owner_address_line1': owner_address[0]
+			, 'owner_address_line2': owner_address[1]
+			, 'owner_address_line3': owner_address[2]
+			, 'situs_address_line1': situs_address[0]
+			, 'situs_address_line2': situs_address[1]
+			, 'situs_address_line3': situs_address[2]
+			, 'html': response_soup.prettify()
+			, 'sales_records': []
+		}
+
+		for tr in response_soup.find('table', id = 'Table1').find_all('tr', class_ = 'regtxt'):
+
+			sales_record = []
+
+			counter = 0
+
+			for td in tr.find_all('td'):
+
+				if td.text.strip() == '':
+					sales_record.append(None)
+				else:
+					if counter == 4:
+						sales_record.append(datetime.strptime(td.text.strip(), "%m/%d/%y"))
+					elif counter == 5:
+						sales_record.append(int(td.text.replace('$', '').replace(',', '').strip()))		
+					else:
+						sales_record.append(td.text.strip())
+
+				counter += 1
+
+			prop['sales_records'].append(tuple(sales_record))
+
+		return prop
+
 	except IndexError:
 		print response_soup
 
-	owner_address = parse_address(response_soup.find_all('tr', class_ = 'regtxt')[1].find_all('td')[0])
-
-	situs_address = parse_address(response_soup.find_all('tr', class_ = 'regtxt')[1].find_all('td')[1])
-
-	prop = {
-		  'property_id': property_id
-		, 'search_id': search_id
-		, 'owner_names': owner_names
-		, 'owner_address_line1': owner_address[0]
-		, 'owner_address_line2': owner_address[1]
-		, 'owner_address_line3': owner_address[2]
-		, 'situs_address_line1': situs_address[0]
-		, 'situs_address_line2': situs_address[1]
-		, 'situs_address_line3': situs_address[2]
-		, 'html': response_soup.prettify()
-		, 'sales_records': []
-	}
-
-	for tr in response_soup.find('table', id = 'Table1').find_all('tr', class_ = 'regtxt'):
-
-		sales_record = []
-
-		counter = 0
-
-		for td in tr.find_all('td'):
-
-			if td.text.strip() == '':
-				sales_record.append(None)
-			else:
-				if counter == 4:
-					sales_record.append(datetime.strptime(td.text.strip(), "%m/%d/%y"))
-				elif counter == 5:
-					sales_record.append(int(td.text.replace('$', '').replace(',', '').strip()))		
-				else:
-					sales_record.append(td.text.strip())
-
-			counter += 1
-
-		prop['sales_records'].append(tuple(sales_record))
-
-	return prop
 

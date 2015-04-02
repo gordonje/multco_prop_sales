@@ -1,6 +1,6 @@
 -- create and appended properties table
 CREATE TABLE properties_appd AS
-SELECT 
+SELECT DISTINCT
           properties.property_id
         , street_no
         , street_dir

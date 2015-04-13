@@ -5,5 +5,5 @@ CREATE TABLE IF NOT EXISTS freq_flyers (
 
 -- import 
 COPY freq_flyers 
-FROM '/Users/gordo/multco_prop_sales/input/freq_flyers.csv' 
-WITH CSV HEADER NULL 'NULL' DELIMITER '|';
+FROM '/Users/gordo/multco_prop_sales/input/freq_flyers.csv'
+WITH CSV HEADER DELIMITER ',' QUOTE '"';

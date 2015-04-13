@@ -232,3 +232,16 @@ FROM cash_buys_next_sales
 GROUP BY cash_buyer
 ORDER BY SUM(net) DESC
 ) TO '/Users/gordo/multco_prop_sales/output/cash_buys_next_sales_sum.csv' DELIMITER ',' CSV HEADER;
+
+--output freq_time_line
+COPY (
+SELECT
+          EXTRACT(month from date_sale)::INT as month
+        , EXTRACT(year from date_sale)::INT as year
+        , COUNT(*) num_buys
+        , SUM(consideration_amount) AS cash_spent
+FROM cash_sales_matches
+WHERE buyer in (SELECT buyer FROM freq_flyers)
+GROUP BY 1, 2
+ORDER BY 2, 1
+) TO '/Users/gordo/multco_prop_sales/output/freq_timeline.csv' DELIMITER ',' CSV HEADER;

@@ -265,5 +265,5 @@ JOIN (
 ) AS freq_buyers
 ON all_buyers.month = freq_buyers.month
 AND all_buyers.year = freq_buyers.year
-ORDER BY 2, 1;
+ORDER BY 2, 1
 ) TO '/Users/gordo/multco_prop_sales/output/freq_timeline.csv' DELIMITER ',' CSV HEADER;

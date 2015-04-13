@@ -233,15 +233,37 @@ GROUP BY cash_buyer
 ORDER BY SUM(net) DESC
 ) TO '/Users/gordo/multco_prop_sales/output/cash_buys_next_sales_sum.csv' DELIMITER ',' CSV HEADER;
 
---output freq_time_line
+--output freq_timeline
 COPY (
-SELECT
-          EXTRACT(month from date_sale)::INT as month
-        , EXTRACT(year from date_sale)::INT as year
-        , COUNT(*) num_buys
-        , SUM(consideration_amount) AS cash_spent
-FROM cash_sales_matches
-WHERE buyer in (SELECT buyer FROM freq_flyers)
-GROUP BY 1, 2
-ORDER BY 2, 1
+SELECT 
+          all_buyers.month
+        , all_buyers.year
+        , all_buyers.num_buys AS all_buys_num
+        , freq_buyers.num_buys AS freq_buys_num
+        , freq_buyers.num_buys::FLOAT / all_buyers.num_buys::FLOAT AS freq_buys_pct
+        , all_buyers.cash_spent AS all_buys_spent        
+        , freq_buyers.cash_spent AS freq_buys_spent
+        , freq_buyers.cash_spent::FLOAT / all_buyers.cash_spent::FLOAT AS freq_spent_pct
+FROM (
+        SELECT
+                  EXTRACT(month from date_sale)::INT as month
+                , EXTRACT(year from date_sale)::INT as year
+                , COUNT(*) num_buys
+                , SUM(consideration_amount) AS cash_spent
+        FROM cash_sales_matches
+        GROUP BY 1, 2
+) AS all_buyers
+JOIN (
+        SELECT
+                  EXTRACT(month from date_sale)::INT as month
+                , EXTRACT(year from date_sale)::INT as year
+                , COUNT(*) num_buys
+                , SUM(consideration_amount) AS cash_spent
+        FROM cash_sales_matches
+        WHERE buyer in (SELECT buyer FROM freq_flyers)
+        GROUP BY 1, 2
+) AS freq_buyers
+ON all_buyers.month = freq_buyers.month
+AND all_buyers.year = freq_buyers.year
+ORDER BY 2, 1;
 ) TO '/Users/gordo/multco_prop_sales/output/freq_timeline.csv' DELIMITER ',' CSV HEADER;

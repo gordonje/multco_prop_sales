@@ -1,7 +1,7 @@
 multo_prop_taxes
 ================
 
-This is a repo for a project for which I was contracted to assist another journalist. It started of as scraping Multnomah County, Oregon, property sales information from [http://multcoproptax.org/](http://multcoproptax.org/), then sort of snowballed from there.
+This is a repo for a project on which I collaborated with another investigative journalist in Oregon. We started of as scraping Multnomah County, Oregon, property sales information from [http://multcoproptax.org/](http://multcoproptax.org/), then sort of snowballed from there.
 
 
 Dependencies
@@ -14,20 +14,36 @@ Dependencies
 *	[psycopg2](http://initd.org/psycopg/ "psycopg2") for connecting Python to the database
 
 
-How it works (in a nutshell)
-----------------------------
+Set up
+------
 
-In the terminal, type:
+First, you need to set up a local PostgreSQL database:
 
-	python get_property_taxes.py [name of database] [db user name] [db user password]
+	$ psql
+	# CREATE DATABASE [db_name];
+	# \q
 
-If you don't pass the database connection parameters when you initiate the script, you will be prompted to provide them.
+Now navigate into the project directory and run [setup_db.py](https://github.com/gordonje/multco_prop_sales/blob/master/setup_db.py):
 
-Unless they already exist in your database, the script will [create the necessary tables](https://github.com/gordonje/multco_prop_taxes/blob/master/create_tables.sql).
+	$ python setup_db.py [db_name] [db_user] [db_password]
 
-The script reads in a list of property IDs from the [PIDs.txt](https://github.com/gordonje/multco_prop_taxes/blob/master/PIDs.txt) file, excluding any duplicates in the file. It also selects all of the property_ids currently in the database. As the script iterates over the desired property_ids, it checks to see if the database already has a record for that property_id, in which case it doesn't request more info about it. (Though, it occurs to me that, were this an on-going data-mining project, it would be probably be necessary to make the requests anyway in order to update information, like the current owners and add new sales records).
+If you don't pass the database connection parameters when you initiate the script, you'll be prompted to provide them.
 
-In order to submit requests, the script first sets up a request session and logs into [http://multcoproptax.org](http://multcoproptax.org). Then for each property_id (after checking whether or not it needs to make a request for it), it makes a GET request to the [property.asp](http://multcoproptax.org/property.asp?PropertyID=R238620) page. If the request fails due to a connection error (e.g., if the server doesn't respond), then it resets the session, logs in again, and re-submits the request.
+This script creates tables for our original datasets--the [cash sales](https://github.com/gordonje/multco_prop_sales/blob/master/input/2014-12-12_Lee_van_der_Voo-Cash_Sales_Multnomah.csv) and the [cash sales with some property data appended](https://github.com/gordonje/multco_prop_sales/blob/master/input/MultcoCashRealEstateTransactions.csv)--then imports this data, adds serialized id field to each table and applies some indexes to each table.
+
+Next, we add a property id column to cash_sales_orig and [populate it](https://github.com/gordonje/multco_prop_sales/blob/master/sql/set_orig_propid.sql) by joining to cash_sales_appd using the distinct address field values. This is the table of records we'll used to make our requests.
+
+Finally, we create a couple other tables to hold the data to be scraped: the [properties](https://github.com/gordonje/multco_prop_sales/blob/master/sql/create_properties.sql) table and the [property_sales](https://github.com/gordonje/multco_prop_sales/blob/master/sql/create_property_sales.sql) table.
+
+
+Requesting by property_id
+-------------------------
+
+For many addresses, we already have the property_id, so we can request these properties directly without having to search for them.
+
+	$ python get_properties.py [db_name] [db_user] [db_password]
+
+After connecting to the database, it selects into memory all the distinct property ids that have not yet been scraped. Then it sets up a request session, logs into multcoproptax.org and, for each property_id, makes a GET request to the [property.asp](http://multcoproptax.org/property.asp?PropertyID=R238620) page. If the request fails due to a connection error (e.g., if the server doesn't respond), then it resets the session, logs in again, and re-submits the request.
 
 Once a valid response is received, we parse out and store the desired info for the property. Specifically, we grab:
 *	Owner Names
@@ -42,3 +58,21 @@ Once a valid response is received, we parse out and store the desired info for t
 	- Consideration Amount
 
 Note that the script is set to pause for three seconds before making a request so that we don't overwhelm the server. After accounting for the time spent waiting for a response, parsing the response and saving to the database, each property_id iteration take about six seconds. So if you're requesting several thousand property_ids, then script will need lots of uninterrupted time. For example, we had over 10,000 property_ids in the original use case, which required 16 to 17 hours total.
+
+
+Searching for properties
+------------------------
+
+In some cases, we don't have a property_id, though we do have address information (i.e., street number, street direction, street name, street type, unit number and zip code) which may help us identify that specific property.
+
+
+Matching cash sales
+-------------------
+
+	$ python matcher.py [db_name] [db_user] [db_password]
+
+
+Outputs
+-------
+
+	$ python outputs.py [db_name] [db_user] [db_password]

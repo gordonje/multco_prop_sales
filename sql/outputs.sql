@@ -180,12 +180,6 @@ SELECT *
 FROM cash_sellers
 ) TO '/Users/gordo/multco_prop_sales/output/cash_sellers.csv' DELIMITER ',' CSV HEADER;
 
--- output cash players
-COPY (
-SELECT *
-FROM cash_sellers
-) TO '/Users/gordo/multco_prop_sales/output/cash_sellers.csv' DELIMITER ',' CSV HEADER;
-
 -- output cash_players
 COPY (
 SELECT *
